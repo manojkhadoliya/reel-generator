@@ -1,0 +1,70 @@
+{
+  "topic": "How logout from all devices works",
+  "slug": "how-logout-from-all-devices-works",
+  "totalDurationSec": 45,
+  "beats": [
+    {
+      "id": "b1",
+      "type": "hook",
+      "narration": "Ever wonder what actually happens when you click Log out everywhere?",
+      "durationSec": 4,
+      "visual": { "type": "diagram", "diagramState": "session:idle" }
+    },
+    {
+      "id": "b2",
+      "type": "explain",
+      "narration": "Your device sends a logout request to the server.",
+      "durationSec": 4,
+      "visual": { "type": "diagram", "diagramState": "session:client-sends-logout-request", "highlightNodes": ["client", "server"] }
+    },
+    {
+      "id": "b3",
+      "type": "explain",
+      "narration": "If the server tracks sessions in a database, it deletes every session row tied to your account.",
+      "durationSec": 6,
+      "visual": { "type": "diagram", "diagramState": "session:server-deletes-all-sessions", "highlightNodes": ["server", "db"] }
+    },
+    {
+      "id": "b4",
+      "type": "explain",
+      "narration": "Once those rows are gone, no cookie pointing to them is valid anymore.",
+      "durationSec": 5,
+      "visual": { "type": "diagram", "diagramState": "session:session-store-cleared" }
+    },
+    {
+      "id": "b5",
+      "type": "explain",
+      "narration": "The server confirms back to your device that you are logged out.",
+      "durationSec": 4,
+      "visual": { "type": "diagram", "diagramState": "session:server-confirms-client" }
+    },
+    {
+      "id": "b6",
+      "type": "explain",
+      "narration": "But what if the app uses stateless JWTs instead of server side sessions?",
+      "durationSec": 5,
+      "visual": { "type": "diagram", "diagramState": "jwt:idle" }
+    },
+    {
+      "id": "b7",
+      "type": "explain",
+      "narration": "A JWT cannot be deleted, so the server bumps your token version and adds it to a revocation blocklist.",
+      "durationSec": 6,
+      "visual": { "type": "diagram", "diagramState": "jwt:server-revokes-token-version", "highlightNodes": ["server", "blocklist"] }
+    },
+    {
+      "id": "b8",
+      "type": "explain",
+      "narration": "Any request still carrying the old token version now fails that blocklist check.",
+      "durationSec": 6,
+      "visual": { "type": "diagram", "diagramState": "jwt:device-b-jwt-rejected", "highlightNodes": ["deviceB"] }
+    },
+    {
+      "id": "b9",
+      "type": "close",
+      "narration": "Same idea either way. Invalidate what the client is holding, everywhere at once.",
+      "durationSec": 5,
+      "visual": { "type": "diagram", "diagramState": "jwt:blocklist-updated" }
+    }
+  ]
+}

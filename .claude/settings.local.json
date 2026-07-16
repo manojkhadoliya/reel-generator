@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd \"d:/Projects/Learning/futurestack\" && mkdir -p src/compositions src/diagrams/shared src/pipeline src/data .claude/commands out public/audio && ls -la)",
+      "Bash(pnpm install *)"
+    ],
+    "additionalDirectories": [
+      "d:\\Projects\\Learning\\futurestack\\.claude"
+    ]
+  }
+}

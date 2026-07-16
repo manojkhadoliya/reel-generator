@@ -1,0 +1,83 @@
+{
+  "topic": "How does Face ID actually recognize you",
+  "slug": "how-does-face-id-actually-recognize-you",
+  "totalDurationSec": 86.4,
+  "beats": [
+    {
+      "id": "hook-1",
+      "type": "hook",
+      "narration": "Your iPhone unlocks just by looking at it. But what actually happens in that split second between your glance and the lock screen disappearing?",
+      "durationSec": 8.8,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "faceid:user-glance",
+        "highlightNodes": ["phone"]
+      }
+    },
+    {
+      "id": "explain-1",
+      "type": "explain",
+      "narration": "It starts with the TrueDepth camera system. The moment you raise your phone, an infrared flood illuminator lights up your face with invisible I-R light, even in complete darkness.",
+      "durationSec": 11.82,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "faceid:ir-flood-dots",
+        "highlightNodes": ["truedepth"]
+      }
+    },
+    {
+      "id": "explain-2",
+      "type": "explain",
+      "narration": "Then a dot projector fires over thirty thousand invisible I-R dots onto your face. An infrared camera reads the pattern. Flat photos can't replicate this because the dots encode actual three-D depth.",
+      "durationSec": 14.11,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "faceid:depth-map-captured",
+        "highlightNodes": ["truedepth", "neuralEngine"]
+      }
+    },
+    {
+      "id": "explain-3",
+      "type": "explain",
+      "narration": "The depth map goes straight to a dedicated neural engine on the A-series chip. It converts the raw dot cloud into a compact mathematical model of your face, not an image, just numbers.",
+      "durationSec": 12.69,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "faceid:neural-to-enclave",
+        "highlightNodes": ["neuralEngine", "secureEnclave"]
+      }
+    },
+    {
+      "id": "explain-4",
+      "type": "explain",
+      "narration": "That math model is sent to the Secure Enclave, a hardened coprocessor isolated from the rest of the system. Your enrolled face data never leaves this chip. Not even Apple can extract it.",
+      "durationSec": 12.89,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "faceid:neural-to-enclave",
+        "highlightNodes": ["secureEnclave"]
+      }
+    },
+    {
+      "id": "explain-5",
+      "type": "explain",
+      "narration": "The Secure Enclave compares the new model against your stored enrollment. It tolerates natural changes, glasses, beard growth, aging, because it continuously updates its reference model with each successful unlock.",
+      "durationSec": 14.46,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "faceid:match-success",
+        "highlightNodes": ["secureEnclave", "result"]
+      }
+    },
+    {
+      "id": "close-1",
+      "type": "close",
+      "narration": "The whole pipeline, I-R flood, dot projection, neural network, Secure Enclave comparison, runs in under four hundred milliseconds. That is Face ID.",
+      "durationSec": 11.64,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "faceid:match-success"
+      }
+    }
+  ]
+}
