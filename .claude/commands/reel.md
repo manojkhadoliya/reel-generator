@@ -85,8 +85,10 @@ pnpm pipeline src/data/{slug}.json
 
 This invokes `src/pipeline/cli.ts`, which runs `runPipeline()` end-to-end: voiceover generation
 (ElevenLabs), timing reconciliation (overwrites `src/data/{slug}.json` with real durations),
-render (`out/{slug}.mp4`), S3 upload, and a `manifest.json` append. It prints progress at each
-stage to stdout — stream that output to the user as it runs rather than waiting silently.
+render (`out/{slug}.mp4` — now opens with a topic title card over the reel's representative
+diagram, see `src/compositions/Thumbnail.tsx`), S3 upload, and a `manifest.json` append. It
+prints progress at each stage to stdout — stream that output to the user as it runs rather than
+waiting silently.
 
 ## Step 3 — Report
 

@@ -4,13 +4,15 @@ import { JWTDiagram } from "../diagrams/JWTDiagram";
 import { SessionDiagram } from "../diagrams/SessionDiagram";
 import { theme } from "../diagrams/shared/theme";
 import type { DiagramComponent } from "../diagrams/shared/types";
+import { VPNDiagram } from "../diagrams/VPNDiagram";
 import type { Beat } from "../pipeline/types";
 import { computeBeatFrameRanges } from "./frameRanges";
 
-const DIAGRAM_REGISTRY: Record<string, DiagramComponent> = {
+export const DIAGRAM_REGISTRY: Record<string, DiagramComponent> = {
   session: SessionDiagram,
   jwt: JWTDiagram,
   faceid: FaceIDDiagram,
+  vpn: VPNDiagram,
 };
 
 function BeatDiagram({ beat }: { beat: Beat }) {

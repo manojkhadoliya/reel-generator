@@ -1,0 +1,100 @@
+{
+  "topic": "What is actually a VPN doing? (the tunnel analogy)",
+  "slug": "what-is-actually-a-vpn-doing-the-tunnel-analogy",
+  "totalDurationSec": 73.77,
+  "beats": [
+    {
+      "id": "hook",
+      "type": "hook",
+      "narration": "Picture your laptop on public Wi-Fi, sending a login request in the clear. The router, your I-S-P, anyone on that network can read exactly where you're going.",
+      "durationSec": 10.26,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "vpn:no-vpn-exposed",
+        "highlightNodes": [
+          "isp"
+        ]
+      }
+    },
+    {
+      "id": "explain-baseline",
+      "type": "explain",
+      "narration": "That's the baseline. Without protection, every hop between you and the site can see the destination, and often the content too.",
+      "durationSec": 8.52,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "vpn:isp-sees-everything",
+        "highlightNodes": [
+          "isp",
+          "destination"
+        ]
+      }
+    },
+    {
+      "id": "explain-device-encrypts",
+      "type": "explain",
+      "narration": "A VPN adds a client on your device that encrypts every packet before it ever leaves, router included.",
+      "durationSec": 7.08,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "vpn:device-encrypts",
+        "highlightNodes": [
+          "device"
+        ]
+      }
+    },
+    {
+      "id": "explain-tunnel",
+      "type": "explain",
+      "narration": "That's the tunnel: an encrypted pipe from you to a VPN server. Your I-S-P still sees traffic leaving your device, but only as opaque bytes headed to the VPN's I-P, not the site you're actually visiting.",
+      "durationSec": 15.06,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "vpn:encrypted-tunnel-to-vpn",
+        "highlightNodes": [
+          "vpnServer"
+        ]
+      }
+    },
+    {
+      "id": "explain-vpn-forwards",
+      "type": "explain",
+      "narration": "At the other end, the VPN server decrypts the packet and forwards your actual request to the real destination, on your behalf.",
+      "durationSec": 8.18,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "vpn:vpn-decrypts-forwards",
+        "highlightNodes": [
+          "vpnServer",
+          "destination"
+        ]
+      }
+    },
+    {
+      "id": "explain-response",
+      "type": "explain",
+      "narration": "The response takes the same path in reverse: back to the VPN server, re-encrypted, through your I-S-P, and decrypted only once it reaches your device.",
+      "durationSec": 11.21,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "vpn:response-returns-encrypted",
+        "highlightNodes": [
+          "device"
+        ]
+      }
+    },
+    {
+      "id": "close",
+      "type": "close",
+      "narration": "So a VPN tunnel isn't magic. It's encryption between you and a trusted relay, hiding your traffic from the local network. But the VPN provider now sits exactly where your I-S-P used to.",
+      "durationSec": 13.44,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "vpn:tunnel-summary",
+        "highlightNodes": [
+          "vpnServer"
+        ]
+      }
+    }
+  ]
+}
