@@ -1,9 +1,11 @@
 import { Sequence, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { EventLoopDiagram } from "../diagrams/EventLoopDiagram";
 import { FaceIDDiagram } from "../diagrams/FaceIDDiagram";
 import { JWTDiagram } from "../diagrams/JWTDiagram";
 import { SessionDiagram } from "../diagrams/SessionDiagram";
 import { theme } from "../diagrams/shared/theme";
 import type { DiagramComponent } from "../diagrams/shared/types";
+import { TOTPDiagram } from "../diagrams/TOTPDiagram";
 import { VPNDiagram } from "../diagrams/VPNDiagram";
 import type { Beat } from "../pipeline/types";
 import { computeBeatFrameRanges } from "./frameRanges";
@@ -13,6 +15,8 @@ export const DIAGRAM_REGISTRY: Record<string, DiagramComponent> = {
   jwt: JWTDiagram,
   faceid: FaceIDDiagram,
   vpn: VPNDiagram,
+  totp: TOTPDiagram,
+  eventloop: EventLoopDiagram,
 };
 
 function BeatDiagram({ beat }: { beat: Beat }) {

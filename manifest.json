@@ -16,5 +16,17 @@
     "topic": "What is actually a VPN doing? (the tunnel analogy)",
     "s3Url": "s3://reel-generater/reels/what-is-actually-a-vpn-doing-the-tunnel-analogy/2026-07-16.mp4",
     "date": "2026-07-16"
+  },
+  {
+    "slug": "how-does-2fa-totp-actually-verify-your-6-digit-code",
+    "topic": "How does 2FA/TOTP actually verify your 6-digit code",
+    "s3Url": "s3://reel-generater/reels/how-does-2fa-totp-actually-verify-your-6-digit-code/2026-08-19.mp4",
+    "date": "2026-08-19"
+  },
+  {
+    "slug": "how-event-loops-works-in-nodejs",
+    "topic": "How event loops work in Node.js",
+    "s3Url": "s3://reel-generater/reels/how-event-loops-works-in-nodejs/2026-08-19.mp4",
+    "date": "2026-08-19"
   }
 ]

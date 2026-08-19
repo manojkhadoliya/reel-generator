@@ -1,0 +1,110 @@
+{
+  "topic": "How does 2FA/TOTP actually verify your 6-digit code",
+  "slug": "how-does-2fa-totp-actually-verify-your-6-digit-code",
+  "totalDurationSec": 96.56,
+  "beats": [
+    {
+      "id": "hook-1",
+      "type": "hook",
+      "narration": "You type six digits from your authenticator app. No internet request leaves that app. So how does the server already know if you're right?",
+      "durationSec": 7.3,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "totp:intro",
+        "highlightNodes": [
+          "phone",
+          "server"
+        ]
+      }
+    },
+    {
+      "id": "explain-1",
+      "type": "explain",
+      "narration": "It starts at setup. The server generates a random secret key and shows it to you as a Q-R code. Your app scans it once. Now both sides, and only those two sides, hold the same secret.",
+      "durationSec": 12.45,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "totp:enrollment",
+        "highlightNodes": [
+          "secret"
+        ]
+      }
+    },
+    {
+      "id": "explain-2",
+      "type": "explain",
+      "narration": "T-O-T-P means Time-based One-Time Password. Both the phone and the server take the current Unix time, divide it by thirty seconds, and drop the remainder. That gives them an identical counter, a number that only changes once every thirty seconds.",
+      "durationSec": 15.62,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "totp:time-counter",
+        "highlightNodes": [
+          "clock"
+        ]
+      }
+    },
+    {
+      "id": "explain-3",
+      "type": "explain",
+      "narration": "The phone feeds that counter and the shared secret into H-Mac-S-H-A-1, a one-way hashing function. Out comes a twenty-byte block of pseudo-random bytes. There's no way to reverse it back into the secret.",
+      "durationSec": 12.15,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "totp:phone-hashes",
+        "highlightNodes": [
+          "hmacPhone"
+        ]
+      }
+    },
+    {
+      "id": "explain-4",
+      "type": "explain",
+      "narration": "That hash is too long to type, so dynamic truncation kicks in. The last nibble of the hash picks an offset, four bytes get pulled out from there, and the result is reduced with a modulo to leave exactly six digits.",
+      "durationSec": 12,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "totp:truncate",
+        "highlightNodes": [
+          "codePhone"
+        ]
+      }
+    },
+    {
+      "id": "explain-5",
+      "type": "explain",
+      "narration": "Here's the key part. The server never asks the phone for anything. It runs the exact same steps, same secret, same time-based counter, same hash, same truncation, and lands on its own six-digit code completely independently.",
+      "durationSec": 14.11,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "totp:server-computes",
+        "highlightNodes": [
+          "hmacServer",
+          "codeServer"
+        ]
+      }
+    },
+    {
+      "id": "explain-6",
+      "type": "explain",
+      "narration": "Then it just compares strings. Your typed code against its own generated code. To survive clock drift and typing delay, it also checks the previous and next thirty-second windows before rejecting you.",
+      "durationSec": 11.2,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "totp:compare",
+        "highlightNodes": [
+          "compare"
+        ]
+      }
+    },
+    {
+      "id": "close-1",
+      "type": "close",
+      "narration": "No network call, no shared database lookup. Just a secret set once, a synchronized clock, and matching math on both ends. That's the entire trick behind T-O-T-P.",
+      "durationSec": 11.74,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "totp:match-success"
+      }
+    }
+  ]
+}
