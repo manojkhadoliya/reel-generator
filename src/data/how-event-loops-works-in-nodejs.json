@@ -1,0 +1,83 @@
+{
+  "topic": "How event loops work in Node.js",
+  "slug": "how-event-loops-works-in-nodejs",
+  "totalDurationSec": 44.73,
+  "beats": [
+    {
+      "id": "hook-1",
+      "type": "hook",
+      "narration": "Node-J-S runs your code on one single thread. So how does it handle thousands of requests at once without blocking?",
+      "durationSec": 7.22,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "eventloop:intro",
+        "highlightNodes": [
+          "callStack"
+        ]
+      }
+    },
+    {
+      "id": "explain-1",
+      "type": "explain",
+      "narration": "Your synchronous code runs on the call stack, one frame at a time. Nothing else runs until that stack is empty.",
+      "durationSec": 6.34,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "eventloop:intro",
+        "highlightNodes": [
+          "callStack"
+        ]
+      }
+    },
+    {
+      "id": "explain-2",
+      "type": "explain",
+      "narration": "Async work, like file reads or timers, gets handed off to libuv's thread pool or the O-S, running completely off the main thread.",
+      "durationSec": 7.94,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "eventloop:handoff",
+        "highlightNodes": [
+          "asyncApis"
+        ]
+      }
+    },
+    {
+      "id": "explain-3",
+      "type": "explain",
+      "narration": "When that work finishes, its callback waits in a queue. Promises skip that queue entirely and go straight into a microtask queue instead.",
+      "durationSec": 7.52,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "eventloop:queues",
+        "highlightNodes": [
+          "microtaskQueue",
+          "macrotaskQueue"
+        ]
+      }
+    },
+    {
+      "id": "explain-4",
+      "type": "explain",
+      "narration": "The event loop watches the call stack. The moment it's empty, it drains the microtask queue completely, then pulls just one callback from the other queue.",
+      "durationSec": 8.5,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "eventloop:event-loop-cycle",
+        "highlightNodes": [
+          "eventLoop"
+        ]
+      }
+    },
+    {
+      "id": "close-1",
+      "type": "close",
+      "narration": "One thread, one call stack. The real work happens elsewhere, and the event loop just brings the results back, in order.",
+      "durationSec": 7.2,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "eventloop:loop-continues"
+      }
+    }
+  ]
+}

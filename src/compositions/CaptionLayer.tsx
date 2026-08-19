@@ -32,8 +32,9 @@ export function CaptionLayer({ beats }: { beats: Beat[] }) {
         textAlign: "center",
       }}
     >
-      <span
+      <div
         style={{
+          display: "inline-block",
           padding: "16px 28px",
           borderRadius: 12,
           background: theme.colors.captionBg,
@@ -45,7 +46,7 @@ export function CaptionLayer({ beats }: { beats: Beat[] }) {
         }}
       >
         {active.beat.narration}
-      </span>
+      </div>
     </div>
   );
 }

@@ -1,10 +1,12 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
+import { PollyClient } from "@aws-sdk/client-polly";
 import { S3Client } from "@aws-sdk/client-s3";
 import { generateVoiceover } from "./generate-voiceover.js";
+import { generateVoiceoverPolly } from "./generate-voiceover-polly.js";
 import { reconcileTiming } from "./reconcile-timing.js";
 import { renderReel } from "./render.js";
-import { ReelScriptSchema, type ReelScript } from "./types.js";
+import { ReelScriptSchema, type ReelScript, type VoiceoverResult } from "./types.js";
 import { uploadToS3 } from "./upload-to-s3.js";
 
 const MANIFEST_PATH = "manifest.json";
@@ -42,6 +44,30 @@ function requiredEnv(name: string): string {
   return value;
 }
 
+/** Voiceover provider is switchable via TTS_PROVIDER ("elevenlabs" (default) | "polly") so a
+ * quota-exhausted ElevenLabs account can fall back to AWS Polly (reusing the AWS credentials
+ * already required for S3) without touching the rest of the pipeline. */
+async function generateVoiceoverForScript(script: ReelScript): Promise<VoiceoverResult> {
+  const provider = (process.env.TTS_PROVIDER ?? "elevenlabs").toLowerCase();
+
+  if (provider === "polly") {
+    const pollyClient = new PollyClient({ region: requiredEnv("AWS_REGION") });
+    return generateVoiceoverPolly({
+      script,
+      voiceId: process.env.AWS_POLLY_VOICE_ID ?? "Matthew",
+      engine: process.env.AWS_POLLY_ENGINE ?? "neural",
+      client: pollyClient,
+    });
+  }
+
+  const elevenLabsClient = new ElevenLabsClient({ apiKey: requiredEnv("ELEVENLABS_API_KEY") });
+  return generateVoiceover({
+    script,
+    voiceId: requiredEnv("ELEVENLABS_VOICE_ID"),
+    client: elevenLabsClient,
+  });
+}
+
 /**
  * Runs pipeline steps 2-7 (brief section 6): voiceover -> reconcile -> render -> upload -> manifest.
  * Step 1 (writing scriptPath's JSON) is Claude Code's own responsibility and happens before this
@@ -52,12 +78,7 @@ export async function runPipeline(scriptPath: string): Promise<RunPipelineResult
   const script = await loadScript(scriptPath);
 
   console.log(`[pipeline] Generating voiceover for "${script.topic}"...`);
-  const elevenLabsClient = new ElevenLabsClient({ apiKey: requiredEnv("ELEVENLABS_API_KEY") });
-  const voiceover = await generateVoiceover({
-    script,
-    voiceId: requiredEnv("ELEVENLABS_VOICE_ID"),
-    client: elevenLabsClient,
-  });
+  const voiceover = await generateVoiceoverForScript(script);
 
   console.log("[pipeline] Reconciling beat timing against the real narration audio...");
   const { script: reconciledScript } = reconcileTiming(script, voiceover);
