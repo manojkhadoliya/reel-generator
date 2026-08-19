@@ -28,5 +28,19 @@
     "topic": "How event loops work in Node.js",
     "s3Url": "s3://reel-generater/reels/how-event-loops-works-in-nodejs/2026-08-19.mp4",
     "date": "2026-08-19"
+  },
+  {
+    "slug": "how-the-event-loop-works-in-nodejs-hi",
+    "topic": "How the Event Loop Works in Node.js",
+    "language": "hi",
+    "s3Url": "s3://reel-generater/reels/how-the-event-loop-works-in-nodejs-hi/2026-08-19.mp4",
+    "date": "2026-08-19"
+  },
+  {
+    "slug": "how-the-event-loop-works-in-nodejs-hi",
+    "topic": "How the Event Loop Works in Node.js",
+    "language": "hi",
+    "s3Url": "s3://reel-generater/reels/how-the-event-loop-works-in-nodejs-hi/2026-08-19.mp4",
+    "date": "2026-08-19"
   }
 ]
