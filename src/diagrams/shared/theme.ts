@@ -1,3 +1,5 @@
+import { devanagariFontFamily } from "./fonts";
+
 export const theme = {
   colors: {
     background: "#0B0F1A",
@@ -26,7 +28,10 @@ export const theme = {
     },
   },
   font: {
-    family: "'Segoe UI', 'Inter', sans-serif",
+    // Devanagari fallback is bundled (not relying on host-installed fonts) so Hindi captions
+    // render correctly inside Remotion's headless-Chromium renderer; Latin text still resolves
+    // through Segoe UI/Inter first.
+    family: `'Segoe UI', 'Inter', '${devanagariFontFamily}', sans-serif`,
     caption: { size: 52, weight: 700, lineHeight: 1.25 },
     nodeLabel: { size: 26, weight: 600 },
     nodeSubLabel: { size: 18, weight: 400 },

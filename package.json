@@ -14,6 +14,7 @@
     "@aws-sdk/client-s3": "3.1088.0",
     "@elevenlabs/elevenlabs-js": "2.58.0",
     "@remotion/bundler": "4.0.490",
+    "@remotion/google-fonts": "4.0.490",
     "@remotion/cli": "4.0.490",
     "@remotion/renderer": "4.0.490",
     "dotenv": "17.4.2",

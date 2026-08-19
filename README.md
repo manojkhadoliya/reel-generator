@@ -10,13 +10,21 @@ Input:  /reel how logout from all devices works | 60
 Output: s3://reel-generater/reels/how-logout-from-all-devices-works/2026-07-16.mp4
 ```
 
-See `USER_GUIDE.md` for how to actually run one. See `docs/reel-generator.md` for the original
-project brief this was scaffolded from.
+Narration can also be generated in Hindi (Devanagari script) instead of English by passing a
+third argument, or by writing the topic itself in Hindi:
+
+```
+Input:  /reel how logout from all devices works | 60 | hi
+Output: s3://reel-generater/reels/how-logout-from-all-devices-works-hi/2026-08-19.mp4
+```
+
+See `USER_GUIDE.md` for how to actually run one (including Hindi voiceover setup). See
+`docs/reel-generator.md` for the original project brief this was scaffolded from.
 
 ## Architecture
 
 ```
-                         /reel <topic> | <durationSec>
+                    /reel <topic> | <durationSec> | <language>
                                     |
                                     v
                      +----------------------------+
@@ -71,7 +79,7 @@ src/
 .claude/commands/reel.md   the /reel slash command definition
 out/                       rendered mp4s (gitignored)
 public/audio/              generated narration mp3s (gitignored)
-manifest.json              {slug, topic, s3Url, date} history of past reels
+manifest.json              {slug, topic, language, s3Url, date} history of past reels
 ```
 
 ## Composition -> pipeline mapping

@@ -11,9 +11,23 @@ function makeScript(): ReelScript {
     topic: "test",
     slug: "unit-test-slug",
     totalDurationSec: 10,
+    language: "en",
     beats: [
       { id: "b1", type: "hook", narration: "Hi there.", durationSec: 1, visual: { type: "caption-only", diagramState: "x" } },
       { id: "b2", type: "close", narration: "Bye now.", durationSec: 1, visual: { type: "caption-only", diagramState: "x" } },
+    ],
+  };
+}
+
+function makeHindiScript(): ReelScript {
+  return {
+    topic: "test",
+    slug: "unit-test-slug-hi",
+    totalDurationSec: 10,
+    language: "hi",
+    beats: [
+      { id: "b1", type: "hook", narration: "नमस्ते दोस्तों।", durationSec: 1, visual: { type: "caption-only", diagramState: "x" } },
+      { id: "b2", type: "close", narration: "फिर मिलेंगे।", durationSec: 1, visual: { type: "caption-only", diagramState: "x" } },
     ],
   };
 }
@@ -63,6 +77,25 @@ describe("generateVoiceover", () => {
     const written = await readFile(result.audioFilePath);
     expect(written.toString()).toBe("fake-mp3-bytes");
     expect(result.audioFilePath.endsWith(`${script.slug}.mp3`)).toBe(true);
+  });
+
+  it("submits Devanagari (Hindi) narration and returns matching beat char ranges", async () => {
+    const script = makeHindiScript();
+    const fullText = "नमस्ते दोस्तों। फिर मिलेंगे।";
+    const convertWithTimestamps = vi.fn().mockResolvedValue({
+      audioBase64: Buffer.from("fake-mp3-bytes").toString("base64"),
+      alignment: fakeAlignmentFor(fullText),
+    });
+    const client = { textToSpeech: { convertWithTimestamps } } as unknown as ElevenLabsClient;
+
+    const result = await generateVoiceover({ script, voiceId: "voice-hi", client, outputDir: tmpDir });
+
+    const [, request] = convertWithTimestamps.mock.calls[0];
+    expect(request.text).toBe(fullText);
+    expect(result.beatCharRanges).toEqual([
+      { beatId: "b1", start: 0, end: "नमस्ते दोस्तों।".length },
+      { beatId: "b2", start: "नमस्ते दोस्तों। ".length, end: fullText.length },
+    ]);
   });
 
   it("throws if the returned alignment text does not match the submitted narration", async () => {

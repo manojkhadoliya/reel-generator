@@ -18,6 +18,7 @@ export interface RunPipelineResult {
 interface ManifestEntry {
   slug: string;
   topic: string;
+  language: string;
   s3Url: string;
   date: string;
 }
@@ -102,6 +103,7 @@ export async function runPipeline(scriptPath: string): Promise<RunPipelineResult
   await appendManifestEntry({
     slug: reconciledScript.slug,
     topic: reconciledScript.topic,
+    language: reconciledScript.language,
     s3Url,
     date: new Date().toISOString().slice(0, 10),
   });

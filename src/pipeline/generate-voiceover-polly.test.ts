@@ -11,11 +11,47 @@ function makeScript(): ReelScript {
     topic: "test",
     slug: "unit-test-slug",
     totalDurationSec: 10,
+    language: "en",
     beats: [
       { id: "b1", type: "hook", narration: "Hi there.", durationSec: 1, visual: { type: "caption-only", diagramState: "x" } },
       { id: "b2", type: "close", narration: "Bye now.", durationSec: 1, visual: { type: "caption-only", diagramState: "x" } },
     ],
   };
+}
+
+function makeHindiScript(): ReelScript {
+  return {
+    topic: "test",
+    slug: "unit-test-slug-hi",
+    totalDurationSec: 10,
+    language: "hi",
+    beats: [
+      { id: "b1", type: "hook", narration: "नमस्ते दोस्तों।", durationSec: 1, visual: { type: "caption-only", diagramState: "x" } },
+      { id: "b2", type: "close", narration: "फिर मिलेंगे।", durationSec: 1, visual: { type: "caption-only", diagramState: "x" } },
+    ],
+  };
+}
+
+/** Word marks Polly would plausibly report for the Hindi fixture (start = char offset, time = ms). */
+function fakeHindiWordMarksFor(fullText: string) {
+  return [
+    { time: 0, type: "word", start: fullText.indexOf("नमस्ते"), end: fullText.indexOf("नमस्ते") + "नमस्ते".length, value: "नमस्ते" },
+    {
+      time: 400,
+      type: "word",
+      start: fullText.indexOf("दोस्तों।"),
+      end: fullText.indexOf("दोस्तों।") + "दोस्तों।".length,
+      value: "दोस्तों।",
+    },
+    { time: 900, type: "word", start: fullText.indexOf("फिर"), end: fullText.indexOf("फिर") + "फिर".length, value: "फिर" },
+    {
+      time: 1200,
+      type: "word",
+      start: fullText.indexOf("मिलेंगे।"),
+      end: fullText.indexOf("मिलेंगे।") + "मिलेंगे।".length,
+      value: "मिलेंगे।",
+    },
+  ];
 }
 
 /** "Hi there. Bye now." — word marks Polly would plausibly report (start = char offset, time = ms). */
@@ -69,6 +105,20 @@ describe("generateVoiceoverPolly", () => {
     const written = await readFile(result.audioFilePath);
     expect(written.toString()).toBe("fake-mp3-bytes");
     expect(result.audioFilePath.endsWith(`${script.slug}.mp3`)).toBe(true);
+  });
+
+  it("writes the mp3 and returns beat char ranges matching Devanagari (Hindi) narration", async () => {
+    const script = makeHindiScript();
+    const fullText = "नमस्ते दोस्तों। फिर मिलेंगे।";
+    const client = makeFakePollyClient(Buffer.from("fake-mp3-bytes"), fakeHindiWordMarksFor(fullText));
+
+    const result = await generateVoiceoverPolly({ script, voiceId: "Kajal", client, outputDir: tmpDir });
+
+    expect(result.beatCharRanges).toEqual([
+      { beatId: "b1", start: 0, end: "नमस्ते दोस्तों।".length },
+      { beatId: "b2", start: "नमस्ते दोस्तों। ".length, end: fullText.length },
+    ]);
+    expect(result.alignment.characters.join("")).toBe(fullText);
   });
 
   it("aligns every beat/word boundary exactly on a measured Polly word-start timestamp", async () => {

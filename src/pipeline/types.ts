@@ -16,6 +16,8 @@ export const ReelScriptSchema = z.object({
   topic: z.string(),
   slug: z.string(),
   totalDurationSec: z.number().positive(),
+  /** Narration/caption language. "hi" = Hindi (Devanagari script) — see .claude/commands/reel.md. */
+  language: z.enum(["en", "hi"]).default("en"),
   beats: z.array(BeatSchema).min(1),
 });
 
