@@ -84,6 +84,25 @@ async function synthesizeWordMarks(
 }
 
 /**
+ * Polly's `start`/`end` speech-mark offsets are byte offsets into the UTF-8 encoding of the
+ * submitted text, not JS string (UTF-16 code unit) indices — see
+ * https://docs.aws.amazon.com/polly/latest/dg/speechmarks.html. For ASCII text the two happen
+ * to coincide, but for multi-byte scripts like Devanagari (3 bytes/char in UTF-8, 1 UTF-16 code
+ * unit per char) they diverge badly. This maps each byte offset that a word mark can land on
+ * back to the corresponding index into `text`.
+ */
+function buildByteOffsetToCharIndex(text: string): Map<number, number> {
+  const map = new Map<number, number>();
+  let byteOffset = 0;
+  for (let i = 0; i < text.length; i++) {
+    map.set(byteOffset, i);
+    byteOffset += Buffer.byteLength(text[i], "utf-8");
+  }
+  map.set(byteOffset, text.length);
+  return map;
+}
+
+/**
  * Polly reports only each word's *start* time (byte offset into the submitted text + ms
  * offset into the audio) — no per-character timing and no end time, unlike ElevenLabs.
  * We treat each word mark as an anchor (charOffset, timeSec) and linearly interpolate
@@ -92,8 +111,17 @@ async function synthesizeWordMarks(
  * exactly on a measured Polly timestamp; only positions strictly inside a span are approximated.
  */
 function buildAlignmentFromWordMarks(fullText: string, marks: PollyWordMark[]): Alignment {
+  const byteToChar = buildByteOffsetToCharIndex(fullText);
   const anchors: Array<{ pos: number; timeSec: number }> = marks
-    .map((m) => ({ pos: m.start, timeSec: m.time / 1000 }))
+    .map((m) => {
+      const pos = byteToChar.get(m.start);
+      if (pos === undefined) {
+        throw new Error(
+          `Polly word mark byte offset ${m.start} (word "${m.value}") does not land on a character boundary in the submitted text.`,
+        );
+      }
+      return { pos, timeSec: m.time / 1000 };
+    })
     .sort((a, b) => a.pos - b.pos);
 
   if (anchors.length === 0) {

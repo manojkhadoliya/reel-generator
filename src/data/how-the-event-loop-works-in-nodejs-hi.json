@@ -1,0 +1,84 @@
+{
+  "topic": "How the Event Loop Works in Node.js",
+  "slug": "how-the-event-loop-works-in-nodejs-hi",
+  "totalDurationSec": 53.97,
+  "language": "hi",
+  "beats": [
+    {
+      "id": "hook-1",
+      "type": "hook",
+      "narration": "Node जे-एस आपका पूरा कोड सिर्फ एक थ्रेड पर चलाता है। तो फिर यह बिना रुके, एक साथ हज़ारों रिक्वेस्ट कैसे संभालता है?",
+      "durationSec": 8.37,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "eventloop:intro",
+        "highlightNodes": [
+          "callStack"
+        ]
+      }
+    },
+    {
+      "id": "explain-1",
+      "type": "explain",
+      "narration": "आपका सिंक्रोनस कोड कॉल स्टैक पर चलता है, एक बार में एक फ्रेम। जब तक स्टैक खाली नहीं होता, तब तक कुछ और नहीं चलता।",
+      "durationSec": 8.36,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "eventloop:intro",
+        "highlightNodes": [
+          "callStack"
+        ]
+      }
+    },
+    {
+      "id": "explain-2",
+      "type": "explain",
+      "narration": "फ़ाइल पढ़ने या टाइमर जैसे असिंक्रोनस काम को लिबयूवी की थ्रेड पूल या ऑपरेटिंग सिस्टम को सौंप दिया जाता है, जो मुख्य थ्रेड से पूरी तरह अलग चलता है।",
+      "durationSec": 8.8,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "eventloop:handoff",
+        "highlightNodes": [
+          "asyncApis"
+        ]
+      }
+    },
+    {
+      "id": "explain-3",
+      "type": "explain",
+      "narration": "जब वह काम पूरा हो जाता है, तो उसका कॉलबैक एक कतार में इंतज़ार करता है। लेकिन प्रॉमिस उस कतार को छोड़कर सीधे माइक्रोटास्क कतार में चला जाता है।",
+      "durationSec": 10.08,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "eventloop:queues",
+        "highlightNodes": [
+          "microtaskQueue",
+          "macrotaskQueue"
+        ]
+      }
+    },
+    {
+      "id": "explain-4",
+      "type": "explain",
+      "narration": "इवेंट लूप कॉल स्टैक पर नज़र रखता है। जैसे ही वह खाली होता है, यह पूरी माइक्रोटास्क कतार को खाली कर देता है, फिर दूसरी कतार से सिर्फ एक कॉलबैक उठाता है।",
+      "durationSec": 10.59,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "eventloop:event-loop-cycle",
+        "highlightNodes": [
+          "eventLoop"
+        ]
+      }
+    },
+    {
+      "id": "close-1",
+      "type": "close",
+      "narration": "एक थ्रेड, एक कॉल स्टैक। असली काम कहीं और होता है, और इवेंट लूप बस नतीजों को वापस, सही क्रम में ले आता है।",
+      "durationSec": 7.78,
+      "visual": {
+        "type": "diagram",
+        "diagramState": "eventloop:loop-continues"
+      }
+    }
+  ]
+}

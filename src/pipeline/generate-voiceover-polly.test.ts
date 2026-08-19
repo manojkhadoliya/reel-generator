@@ -32,23 +32,41 @@ function makeHindiScript(): ReelScript {
   };
 }
 
-/** Word marks Polly would plausibly report for the Hindi fixture (start = char offset, time = ms). */
+/** Polly's word-mark `start`/`end` are UTF-8 *byte* offsets, not JS char indices — convert. */
+function byteOffsetOf(fullText: string, substring: string): number {
+  const charIndex = fullText.indexOf(substring);
+  return Buffer.byteLength(fullText.slice(0, charIndex), "utf-8");
+}
+
+/** Word marks Polly would plausibly report for the Hindi fixture (start/end = UTF-8 byte offset, time = ms). */
 function fakeHindiWordMarksFor(fullText: string) {
   return [
-    { time: 0, type: "word", start: fullText.indexOf("नमस्ते"), end: fullText.indexOf("नमस्ते") + "नमस्ते".length, value: "नमस्ते" },
+    {
+      time: 0,
+      type: "word",
+      start: byteOffsetOf(fullText, "नमस्ते"),
+      end: byteOffsetOf(fullText, "नमस्ते") + Buffer.byteLength("नमस्ते", "utf-8"),
+      value: "नमस्ते",
+    },
     {
       time: 400,
       type: "word",
-      start: fullText.indexOf("दोस्तों।"),
-      end: fullText.indexOf("दोस्तों।") + "दोस्तों।".length,
+      start: byteOffsetOf(fullText, "दोस्तों।"),
+      end: byteOffsetOf(fullText, "दोस्तों।") + Buffer.byteLength("दोस्तों।", "utf-8"),
       value: "दोस्तों।",
     },
-    { time: 900, type: "word", start: fullText.indexOf("फिर"), end: fullText.indexOf("फिर") + "फिर".length, value: "फिर" },
+    {
+      time: 900,
+      type: "word",
+      start: byteOffsetOf(fullText, "फिर"),
+      end: byteOffsetOf(fullText, "फिर") + Buffer.byteLength("फिर", "utf-8"),
+      value: "फिर",
+    },
     {
       time: 1200,
       type: "word",
-      start: fullText.indexOf("मिलेंगे।"),
-      end: fullText.indexOf("मिलेंगे।") + "मिलेंगे।".length,
+      start: byteOffsetOf(fullText, "मिलेंगे।"),
+      end: byteOffsetOf(fullText, "मिलेंगे।") + Buffer.byteLength("मिलेंगे।", "utf-8"),
       value: "मिलेंगे।",
     },
   ];
@@ -119,6 +137,13 @@ describe("generateVoiceoverPolly", () => {
       { beatId: "b2", start: "नमस्ते दोस्तों। ".length, end: fullText.length },
     ]);
     expect(result.alignment.characters.join("")).toBe(fullText);
+
+    // Regression check: each word's *char*-index start time must match its measured time —
+    // this is exactly what breaks if Polly's UTF-8 byte offsets get treated as char indices.
+    expect(result.alignment.characterStartTimesSeconds[fullText.indexOf("नमस्ते")]).toBeCloseTo(0);
+    expect(result.alignment.characterStartTimesSeconds[fullText.indexOf("दोस्तों।")]).toBeCloseTo(0.4);
+    expect(result.alignment.characterStartTimesSeconds[fullText.indexOf("फिर")]).toBeCloseTo(0.9);
+    expect(result.alignment.characterStartTimesSeconds[fullText.indexOf("मिलेंगे।")]).toBeCloseTo(1.2);
   });
 
   it("aligns every beat/word boundary exactly on a measured Polly word-start timestamp", async () => {
