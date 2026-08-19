@@ -47,6 +47,34 @@ run the pipeline directly once `src/data/{slug}.json` exists:
 pnpm pipeline src/data/{slug}.json
 ```
 
+## Hindi voiceover
+
+Narration and captions can be generated in Hindi (Devanagari script) instead of English by
+adding a third argument to the command, or by writing the topic itself in Hindi (the language is
+then inferred automatically):
+
+```
+/reel how logout from all devices works | 60 | hi
+```
+
+Before running a Hindi reel, make sure the voice configured for your `TTS_PROVIDER` actually
+speaks Hindi — the pipeline can't validate this itself, and an English-only voice will
+mispronounce the text:
+
+- **ElevenLabs** (default provider): set `ELEVENLABS_VOICE_ID` to a Hindi-capable voice from the
+  [voice library](https://elevenlabs.io/app/voice-library) — the `eleven_multilingual_v2` model
+  auto-detects the language from the submitted text.
+- **AWS Polly** (`TTS_PROVIDER=polly`): set `AWS_POLLY_VOICE_ID=Kajal` (hi-IN, neural).
+
+Diagram node labels (e.g. "Client", "Server") stay in English — only the spoken narration and
+the on-screen captions (which mirror the narration text) switch language. Devanagari glyphs are
+rendered via a bundled font (`@remotion/google-fonts`'s Noto Sans Devanagari, loaded in
+`src/diagrams/shared/theme.ts`), so no extra system fonts need to be installed on the machine
+running the render.
+
+Genuine Haryanvi (as opposed to standard Hindi) TTS isn't offered by any provider today — Hindi
+is the closest practical stand-in currently supported by this pipeline.
+
 ## Previewing a composition before a full render
 
 Launch Remotion Studio to scrub through the composition interactively, using the sample data in
@@ -77,7 +105,7 @@ npx remotion still TechReel out/frame.png --frame=90
 
 ```json
 [
-  { "slug": "how-logout-from-all-devices-works", "topic": "...", "s3Url": "s3://...", "date": "2026-07-16" }
+  { "slug": "how-logout-from-all-devices-works", "topic": "...", "language": "en", "s3Url": "s3://...", "date": "2026-07-16" }
 ]
 ```
 
@@ -100,10 +128,16 @@ it should sound (e.g. "twenty four hours" instead of "24 hours") rather than rel
 normalization.
 
 **Remotion render fails with a "version mismatch" warning/error**
-All four Remotion packages (`remotion`, `@remotion/cli`, `@remotion/renderer`,
-`@remotion/bundler`) must be pinned to the *identical* exact version in `package.json` (no `^`).
-Check `pnpm list remotion @remotion/cli @remotion/renderer @remotion/bundler` if you ever bump
-one without the others.
+All Remotion packages (`remotion`, `@remotion/cli`, `@remotion/renderer`, `@remotion/bundler`,
+`@remotion/google-fonts`) must be pinned to the *identical* exact version in `package.json` (no
+`^`). Check `pnpm list remotion @remotion/cli @remotion/renderer @remotion/bundler
+@remotion/google-fonts` if you ever bump one without the others.
+
+**Hindi captions render as boxes/missing glyphs ("tofu")**
+Shouldn't happen — `theme.ts` bundles Noto Sans Devanagari via `@remotion/google-fonts` so
+rendering doesn't depend on fonts installed on the render host. If you do see this, confirm
+`@remotion/google-fonts` installed correctly (`pnpm install`) and that `src/diagrams/shared/fonts.ts`
+is being imported (transitively, via `theme.ts`) before the composition renders.
 
 **Remotion render fails trying to load the narration audio**
 `render.ts` only runs after `generate-voiceover.ts` has written
