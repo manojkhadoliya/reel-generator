@@ -2,47 +2,22 @@ import { readFile, writeFile } from "node:fs/promises";
 import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
 import { PollyClient } from "@aws-sdk/client-polly";
 import { S3Client } from "@aws-sdk/client-s3";
+import { requiredEnv } from "./env.js";
 import { generateVoiceover } from "./generate-voiceover.js";
 import { generateVoiceoverPolly } from "./generate-voiceover-polly.js";
+import { appendManifestEntry } from "./manifest.js";
 import { reconcileTiming } from "./reconcile-timing.js";
 import { renderReel } from "./render.js";
 import { ReelScriptSchema, type ReelScript, type VoiceoverResult } from "./types.js";
 import { uploadToS3 } from "./upload-to-s3.js";
 
-const MANIFEST_PATH = "manifest.json";
-
 export interface RunPipelineResult {
   s3Url: string;
-}
-
-interface ManifestEntry {
-  slug: string;
-  topic: string;
-  language: string;
-  s3Url: string;
-  date: string;
 }
 
 async function loadScript(scriptPath: string): Promise<ReelScript> {
   const raw = await readFile(scriptPath, "utf-8");
   return ReelScriptSchema.parse(JSON.parse(raw));
-}
-
-async function appendManifestEntry(entry: ManifestEntry): Promise<void> {
-  let entries: ManifestEntry[] = [];
-  try {
-    entries = JSON.parse(await readFile(MANIFEST_PATH, "utf-8"));
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
-  }
-  entries.push(entry);
-  await writeFile(MANIFEST_PATH, `${JSON.stringify(entries, null, 2)}\n`);
-}
-
-function requiredEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) throw new Error(`Missing required environment variable: ${name}`);
-  return value;
 }
 
 /** Voiceover provider is switchable via TTS_PROVIDER ("elevenlabs" (default) | "polly") so a
