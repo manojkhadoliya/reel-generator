@@ -27,6 +27,16 @@
     "slug": "how-event-loops-works-in-nodejs",
     "topic": "How event loops work in Node.js",
     "s3Url": "s3://reel-generater/reels/how-event-loops-works-in-nodejs/2026-08-19.mp4",
-    "date": "2026-08-19"
+    "date": "2026-08-19",
+    "instagram": {
+      "status": "published",
+      "caption": "How does Node.js handle thousands of requests on a single thread?\n\nYour code runs on one call stack. Async work like file reads and timers is handed off to libuv or the OS. When it finishes, the event loop drains the microtask queue (promises) first, then picks up the next callback, in order.\n\n#nodejs #javascript #eventloop #backend #softwareengineering #programming",
+      "etag": "\"13a69a5e79d0a764d2719a5b6b3bb8cd\"",
+      "account": "stack.future",
+      "containerId": "18223194745349004",
+      "mediaId": "18081837767395573",
+      "publishedAt": "2026-11-13T07:28:11.898Z",
+      "permalink": "https://www.instagram.com/reel/DfrF8BgjBCq/"
+    }
   }
 ]

@@ -79,7 +79,7 @@ src/
 .claude/commands/reel.md   the /reel slash command definition
 out/                       rendered mp4s (gitignored)
 public/audio/              generated narration mp3s (gitignored)
-manifest.json              {slug, topic, language, s3Url, date} history of past reels
+manifest.json              {slug, topic, language, s3Url, date, instagram} history of past reels
 ```
 
 ## Composition -> pipeline mapping
@@ -93,6 +93,7 @@ manifest.json              {slug, topic, language, s3Url, date} history of past 
 | 5. Render | `render.ts` |
 | 6. Upload | `upload-to-s3.ts` |
 | 7. Manifest | `pipeline.ts` appends to `manifest.json` |
+| 8. Post to Instagram, after your approval | `pnpm instagram` -> `instagram-cli.ts` -> `instagram-publish.ts` (never called by `runPipeline()`) |
 
 ## Tech stack
 

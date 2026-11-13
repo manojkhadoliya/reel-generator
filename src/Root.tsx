@@ -1,5 +1,6 @@
 import { Composition, Still } from "remotion";
 import { TechReel, techReelPropsSchema } from "./compositions/TechReel";
+import { ReelCover, reelCoverPropsSchema } from "./compositions/ReelCover";
 import { Thumbnail, thumbnailPropsSchema } from "./compositions/Thumbnail";
 import { totalFrames } from "./compositions/frameRanges";
 import { theme } from "./diagrams/shared/theme";
@@ -28,6 +29,14 @@ export function RemotionRoot() {
         id="Thumbnail"
         component={Thumbnail}
         schema={thumbnailPropsSchema}
+        width={theme.layout.width}
+        height={theme.layout.height}
+        defaultProps={{ script: sampleScript }}
+      />
+      <Still
+        id="ReelCover"
+        component={ReelCover}
+        schema={reelCoverPropsSchema}
         width={theme.layout.width}
         height={theme.layout.height}
         defaultProps={{ script: sampleScript }}

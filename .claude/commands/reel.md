@@ -1,7 +1,7 @@
 ---
 description: Generate a short vertical tech-explainer reel from a topic and upload it to S3
 argument-hint: <topic> | <durationSec> | <language>
-allowed-tools: Read, Write, Edit, Bash, Glob, Grep
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion
 ---
 
 ## Input
@@ -118,3 +118,29 @@ On success, tell the user the final S3 URL (the last line of the pipeline's outp
 the `manifest.json` entry was added. On failure, surface the actual error from the pipeline
 output — do not guess at the cause without reading it (see `USER_GUIDE.md`'s troubleshooting
 section for the common ones: ElevenLabs rate limits, Remotion version mismatches, S3 permissions).
+
+## Step 4 — Offer to post to Instagram (only if `INSTAGRAM_ACCESS_TOKEN` is set)
+
+If `INSTAGRAM_ACCESS_TOKEN` is not in `.env`, skip this step and don't mention it beyond one line.
+
+Write a caption for this reel: what it explains in one or two plain sentences, then a few relevant
+hashtags, in the reel's `language`. Save it to a temp file, then run:
+
+```
+pnpm instagram prepare {slug} --caption-file <path>
+```
+
+This posts nothing. It also renders a cover image (brand logo + topic title, `out/{slug}-cover.jpg`)
+and uploads it next to the video. Read that image so you can check it, then show the user the
+account, the video preview link, the cover preview link and the full caption from its output, then ask with AskUserQuestion whether to post, offering **Post it**, **Change the caption**
+and **Don't post**.
+
+**Never run `pnpm instagram publish` unless the user chose to post this exact draft in this
+conversation.** Posting is public. Approval covers one draft only, so it doesn't carry over to
+another reel or to a changed caption, and a general "post my reels" isn't approval of a draft they
+haven't seen. If the user changes the caption, run `prepare` again and show them the new draft.
+
+Once approved, run the `pnpm instagram publish {slug} --confirm <code>` command that `prepare`
+printed, and give the user the permalink. If it fails, show the actual error. Re-running the same
+command is safe because it can't post twice. If the user declines, leave the draft alone: nothing
+has been posted, and the draft can be picked up later.

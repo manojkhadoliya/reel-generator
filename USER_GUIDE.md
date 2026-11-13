@@ -7,6 +7,8 @@
   for narration.
 - AWS credentials for an IAM identity with `s3:PutObject` (and ideally `s3:ListBucket`,
   `s3:DeleteObject` for cleanup) on the target bucket.
+- For posting to Instagram (optional): a Business or Creator account, see
+  [Posting to Instagram](#posting-to-instagram).
 - The AWS CLI installed if you want to run the manual S3 permission check below (`aws --version`).
 
 ## Setup
@@ -74,6 +76,71 @@ running the render.
 
 Genuine Haryanvi (as opposed to standard Hindi) TTS isn't offered by any provider today — Hindi
 is the closest practical stand-in currently supported by this pipeline.
+
+## Posting to Instagram
+
+Reels are only posted after you've approved them. `/reel` shows you a draft (account, video preview
+and caption) and asks before posting. You can also post any reel in `manifest.json` by hand:
+
+```
+pnpm instagram check                                  # confirm the account and today's quota
+pnpm instagram prepare <slug> [--caption-file <path>] # create a draft; posts nothing
+pnpm instagram publish <slug> --confirm <code>        # post it, using the code prepare printed
+```
+
+`prepare` also renders a cover image, the brand logo (`public/assets/brand-logo.jpeg`) above the
+reel's topic, and uploads it next to the video as `{date}-cover.jpg`. Instagram shows it in the
+profile grid and Reels tab instead of the video's first frame. Its design is
+`src/compositions/ReelCover.tsx`; preview it with `pnpm dev` (the `ReelCover` still). The API can't
+change the cover of a reel that's already posted; do that in the Instagram app.
+
+The code is tied to that exact video, cover, caption and account. If any of them change, publishing is
+refused until you run `prepare` again and review the new draft. The code guards against posting
+the wrong thing by accident. It isn't access control: anyone with the token and this repo can
+still post.
+
+The S3 bucket stays private. Instagram fetches the video through a presigned link that expires
+after an hour.
+
+`prepare` and `publish` update `manifest.json`, so commit it after posting. That record is what
+stops the same reel being posted twice from another checkout.
+
+### One-time setup
+
+You need a Facebook account to register as a Meta developer. It's only used for the developer
+dashboard: it doesn't post anything and doesn't need to be linked to Instagram or have a Page.
+
+1. Switch the Instagram account to a **Business or Creator** account and make it **public**.
+   Personal accounts can't publish through the API.
+2. Register at https://developers.facebook.com (logged in to Facebook), then go to **My Apps >
+   Create App**. Don't use "Instagram", "IG", "Facebook" or "Meta" in the app name.
+3. For the use case, pick **Content management > Manage messaging & content on Instagram**. Skip the
+   ad account and leave the app in Development mode. It doesn't need App Review to post to your
+   own account.
+4. Open **Use cases > Customize > API setup with Unified login**. Create a business portfolio when
+   asked (free, no verification needed), then click **Create new configuration** and **Create from
+   template**. You can skip the redirect URL and login URL.
+5. In **App roles > Roles > Add People**, choose **Instagram Tester** and enter the account's
+   username. Accept the invite at https://www.instagram.com/accounts/manage_access/ (Tester
+   invites tab).
+6. Back in Unified login setup, click **Add account** under "Generate access tokens", log in with
+   Instagram, then **Generate token**.
+7. Paste the token straight into `.env` as `INSTAGRAM_ACCESS_TOKEN` and run `pnpm instagram check`.
+8. Make sure the AWS identity also has `s3:GetObject` on the bucket.
+
+The token from these steps is a system-user token (it starts with `EAA`) and **never expires**, so
+treat it like a password: keep it only in `.env`, never paste it anywhere else, and regenerate it
+from the same screen if it ever leaks. If one token can reach several Instagram accounts, set
+`INSTAGRAM_ACCOUNT_ID` in `.env` to the one to post to; `check` lists
+them.
+
+Older apps created with "API setup with Instagram login" issue `IG...` tokens instead. Those work
+too (the code picks the right API host from the token), but they expire after 60 days. Refresh one
+before then (it must be at least 24 hours old) and put the new token in `.env`:
+
+```
+curl "https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=<token>"
+```
 
 ## Previewing a composition before a full render
 
@@ -161,6 +228,19 @@ rm test.txt
 
 If that fails, the IAM identity needs `s3:PutObject` (and ideally `s3:ListBucket`,
 `s3:DeleteObject`) on the bucket, not a pipeline code issue.
+
+**`pnpm instagram` fails with `Could not reach Instagram` (`ENOTFOUND` or a connect timeout)**
+This machine can't reach Meta's API host (`graph.facebook.com`, or `graph.instagram.com` for `IG...` tokens), which is usually a DNS filter or firewall on the
+network. Check with `nslookup graph.facebook.com`, then allow the host or use another network. It
+isn't a token problem, and re-running `publish` afterwards is safe.
+
+**Instagram reports `ERROR` while processing the video**
+The usual cause is that Instagram couldn't download the video. Confirm the AWS identity has
+`s3:GetObject` by opening the preview link from `prepare`. If you use temporary AWS credentials
+(SSO, assumed roles), the link stops working when they expire, so refresh them first.
+
+**Instagram API error with code `190`**
+The access token has expired, was regenerated, or was revoked. Generate a new one (see "One-time setup" above).
 
 **TypeScript errors around `Composition` props**
 The `TechReel` composition's props are defined via a zod schema
